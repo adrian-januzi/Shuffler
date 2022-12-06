@@ -1,6 +1,10 @@
 #!/bin/bash
 #for c in {0..255}; do tput setaf $c; tput setaf $c | cat -v; echo =$c; done
 clear
+
+tune=$(afplay Jingle-Bells.mp3) &
+tune_pid=$(pgrep afplay Jingle-Bells.mp3)
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
@@ -65,6 +69,8 @@ rm $$.tmp
 let c++
 k=1
 
+kill -9 $tune_pid
+
 # Lights and decorations
 while true; do
     for ((i=1; i<=35; i++)) {
@@ -86,6 +92,4 @@ while true; do
         color=$(((color+1)%8))
     }
     k=$((k % 2 + 1))
-
-    afplay Jingle-Bells.mp3
 done
