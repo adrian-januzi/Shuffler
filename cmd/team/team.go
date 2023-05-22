@@ -22,7 +22,7 @@ func main() {
 
 
 func init() {
-	TeamCmd.AddCommand(listTeamCmd, addMemberCmd, removeMemberCmd)
+	TeamCmd.AddCommand(listTeamCmd, addMemberCmd, removeMemberCmd, clearTeamCmd)
 }
 
 
@@ -154,5 +154,29 @@ var removeMemberCmd = &cobra.Command{
 		}
 
 		fmt.Println("Removed member:", args[0])
+	},
+}
+
+
+var clearTeamCmd = &cobra.Command{
+	Use:   "clear",
+	Short: "Completely clear the team list.",
+	Long:  `Perform spring cleaning on the team list in one fell swoop.`,
+
+	Run: func(cmd *cobra.Command, args []string) {
+		workingPath, err := utils.GetTeamFilepath()
+		if err != nil {
+			fmt.Println("Error getting team file path:", err)
+			return
+		}
+
+		f, err := os.Create(workingPath)
+		if err != nil {
+			fmt.Println("Error opening file", err)
+			return
+		}
+		defer f.Close()
+
+		fmt.Println("Teams list cleared.")
 	},
 }
