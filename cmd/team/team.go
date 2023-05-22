@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"regexp"
 
 	"github.com/csid-cfet/shuffler/utils"
 
@@ -50,9 +51,15 @@ var listTeamCmd = &cobra.Command{
     Long:  `Lists all the members that will be shuffled for a classic wednesday standup where it devolves into ChatGPT mumbo jumbo, random articles and chit chat.`,
 
 	Run: func(cmd *cobra.Command, args []string) {
-		lines, err := utils.ReadFromFile("configs/team")
+		lines, err := utils.ReadFromFile()
 		if err != nil {
 			fmt.Println(err)
+			return
+		}
+
+		if len(lines) == 0 {
+			fmt.Println("There are no team members to list.\n")
+			fmt.Println("Please run `shuffler team add [NAME]`.")
 			return
 		}
 		
@@ -70,7 +77,24 @@ var addMemberCmd = &cobra.Command{
 
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		f, err := os.OpenFile("configs/team", os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
+		if strings.TrimSpace(args[0]) == "" {
+			fmt.Println("Member name cannot be all whitespace.")
+			return
+		}
+
+		match, _ := regexp.MatchString(`\w`, args[0])
+		if !match {
+			fmt.Println("Member name must contain at least one alphanumeric character.")
+			return
+		}
+
+		workingPath, err := utils.GetTeamFilepath()
+		if err != nil {
+			fmt.Println("Error getting team file path:", err)
+			return
+		}
+
+		f, err := os.OpenFile(workingPath, os.O_APPEND | os.O_CREATE | os.O_WRONLY, 0644)
 
 		if err != nil {
 			fmt.Println("Error opening file", err)
@@ -95,7 +119,7 @@ var removeMemberCmd = &cobra.Command{
 
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		lines, err := utils.ReadFromFile("configs/team")
+		lines, err := utils.ReadFromFile()
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -108,7 +132,14 @@ var removeMemberCmd = &cobra.Command{
 			}
 		}
 
-		f, err := os.Create("configs/team")
+		workingPath, err := utils.GetTeamFilepath()
+		if err != nil {
+			fmt.Println("Error getting team file path:", err)
+			return
+		}
+
+
+		f, err := os.Create(workingPath)
 		if err != nil {
 			fmt.Println("Error opening file", err)
 			return
