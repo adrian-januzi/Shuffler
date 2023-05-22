@@ -9,6 +9,8 @@ import (
 	"log"
 	"os/exec"
 	"runtime"
+	"math/rand"
+	"time"
 )
 
 
@@ -42,7 +44,6 @@ func ensureShufflerFiles() {
 
 	shufflerDir := filepath.Join(usr.HomeDir, ".shuffler")
 	teamFile := filepath.Join(shufflerDir, "team")
-	fontsFile := filepath.Join(shufflerDir, "fonts")
 
 	if _, err := os.Stat(teamFile); os.IsNotExist(err) {
 		err := os.MkdirAll(shufflerDir, 0755)
@@ -51,25 +52,6 @@ func ensureShufflerFiles() {
 		}
 
 		_, err = os.Create(teamFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		f, err := os.Create(fontsFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		w := bufio.NewWriter(f)
-		for _, line := range defaultFonts {
-			fmt.Fprintln(w, line)
-		}
-
-		if err = w.Flush(); err != nil {
-			log.Fatal(err)
-		}
-
-		err = f.Close()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -134,4 +116,14 @@ func ClearConsole() {
 
 	clearCmd.Stdout = os.Stdout
 	clearCmd.Run()
+}
+
+
+func GetRandomFont() string {
+	rand.Seed(time.Now().UnixNano())
+
+	randIndex := rand.Intn(len(defaultFonts))
+	randFont := defaultFonts[randIndex]
+
+	return randFont
 }

@@ -59,9 +59,10 @@ var ShuffleCmd = &cobra.Command{
 			}
 	
 			utils.ClearConsole()
-	
+
+			randFont := utils.GetRandomFont()
 			for _, line := range data {
-				asciiArt := figure.NewFigure(line, "colossal", true)
+				asciiArt := figure.NewFigure(line, randFont, true)
 				asciiArt.Print()
 			}
 		} else {
